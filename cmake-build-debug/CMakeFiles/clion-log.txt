@@ -1,1 +1,0 @@
-CMakeLists.txt not found in \\wsl$\Ubuntu-22.04\home\maor1\SS_b_Ex2_a Select CMakeLists.txt
