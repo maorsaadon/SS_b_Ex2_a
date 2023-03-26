@@ -14,7 +14,7 @@ namespace ariel{
       Player* player2;
       vector<stringstream> log;
       bool gameOn;
-      
+      static vector<Player> players;
 
       vector<Card> fullPile();
       void shuffle(vector<Card> pile);
@@ -22,8 +22,6 @@ namespace ariel{
 
     public:
 
-      static vector<Player> players;
-      
       // Constructor
       Game(Player& player1, Player& player2);
     

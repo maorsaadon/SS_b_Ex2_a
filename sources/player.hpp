@@ -14,11 +14,9 @@ namespace ariel{
       int ownCardCount;
       int counterTurnWin;
       int id;
-      
+      static int playersCounter;
 
     public:
-
-      static int playersCounter;
 
       // Constructor
       Player(string name);
