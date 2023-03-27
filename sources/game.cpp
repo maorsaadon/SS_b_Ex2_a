@@ -85,6 +85,13 @@ namespace ariel{
 
     void Game::playTurn() 
     {
+        // if (this->player1->cardesTaken() == this->player2->cardesTaken()) 
+        // {
+        //     cout << "the game still going on" << endl;
+        //     deal();
+        //     return;
+        // }
+
         // Check if game is over
         if (this->player1->stacksize() == 0 && this->player2->stacksize() == 0 || !gameOn) 
         {
@@ -134,6 +141,13 @@ namespace ariel{
 
     void Game::playAll() 
     {
+        // if (this->player1->cardesTaken() == this->player2->cardesTaken()) 
+        // {
+        //     cout << "the game still going on" << endl;
+        //     deal();
+        //     return;
+        // }
+
         if (this->player1->stacksize() == 0 && this->player2->stacksize() == 0 || !(this->gameOn)) 
         {
             throw invalid_argument("game over");
@@ -173,7 +187,10 @@ namespace ariel{
         {
             if(this->player1->cardesTaken() > this->player2->cardesTaken()) {cout << this->player1->getName() << endl;}
             if(this->player2->cardesTaken() > this->player1->cardesTaken()) {cout << this->player2->getName() << endl;}
-            else{cout << "there is no winners this time" << endl;}
+            else
+            {
+                throw invalid_argument("there is no winners this time");
+            }
         }
         
     }
