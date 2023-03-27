@@ -76,140 +76,199 @@ TEST_CASE("printLastTurn()")
     game.playAll();
     CHECK_NOTHROW(game.printLastTurn());
 }      
-       
+
+// Test case for the playAll() function       
 TEST_CASE("playAll()")
 {
+    // Create two players and a new game
     Player p1("p1"); 
     Player p2("p2"); 
     Game game(p1, p2); 
     
-    
+    // Play the game until all cards have been taken
     game.playAll();
 
+    // Check that both players have empty stacks and have taken all the cards
     bool playAllCheck1 = (p1.stacksize() == 0) && (p2.stacksize() == 0);
     CHECK(playAllCheck1);
     
+    // Check that all 52 cards have been taken
     bool playAllCheck2 = (p1.cardesTaken() + p2.cardesTaken() == 52);
     CHECK(playAllCheck2);
     
+    // Check that playing the game again throws an exception
     CHECK_THROWS(game.playAll());
 } 
 
+// Test case for the printWiner() function
 TEST_CASE("printWiner()")
 {
+    // Create two players and a new game
     Player p1("p1"); 
     Player p2("p2"); 
     Game game(p1, p2); 
     
+    // Check that calling printWiner() before playing any turns throws an exception
     CHECK_THROWS(game.printWiner());
+    
+    // Play one turn and check that calling printWiner() before playing all turns throws an exception
     game.playTurn();
     if(p1.stacksize() != 0 || p2.stacksize() != 0)
     {
         CHECK_THROWS(game.printWiner());
     }
+    // If all turns have been played, check that calling printWiner() does not throw an exception
     else
     {
+        // If the two players have taken the same number of cards
+        if(p1.cardesTaken() == p2.cardesTaken())
+        {
+             // Assert that calling printWiner() throws an exception
+             CHECK_THROWS(game.printWiner());
+        }
+        else 
+        {
+            // Assert that calling printWiner() does not throw an exception
+            CHECK_NOTHROW(game.printWiner());
+        }
+    }
+
+    
+
+    // Play all turns and check that calling printWiner() does not throw an exception
+    game.playAll();
+    // If the two players have taken the same number of cards
+    if(p1.cardesTaken() == p2.cardesTaken())
+    {
+            // Assert that calling printWiner() throws an exception
+            CHECK_THROWS(game.printWiner());
+    }
+    else 
+    {
+        // Assert that calling printWiner() does not throw an exception
         CHECK_NOTHROW(game.printWiner());
     }
-    game.playAll();
-    CHECK_NOTHROW(game.printWiner());
 }  
 
+// Test case for the printLog function
 TEST_CASE("printLog")
 {
+    // Create two players and a new game
     Player p1("p1"); 
     Player p2("p2"); 
     Game game(p1, p2); 
     
+    // Check that calling printLog before playing any turns throws an exception
     CHECK_THROWS(game.printLog());
+    // Play one turn and check that calling printLog does not throw an exception
     game.playTurn();
     CHECK_NOTHROW(game.printLog());
+    // Play all turns and check that calling printLog does not throw an exception
     game.playAll();
     CHECK_NOTHROW(game.printLog());
 }  
 
+
+// Test case for the printStats function
 TEST_CASE("printStats()")
 {
+    // Create two players and a new game
     Player p1("p1"); 
     Player p2("p2"); 
     Game game(p1, p2); 
     
+    // Check that calling printStats before playing any turns throws an exception
     CHECK_THROWS(game.printStats());
+     // Play one turn and check that calling printStats does not throw an exception
     game.playTurn();
     CHECK_NOTHROW(game.printStats());
+    // Play all turns and check that calling printStats does not throw an exception
     game.playAll();
     CHECK_NOTHROW(game.printStats());
 }  
 
 
+// Test case for the Player constructor
 TEST_CASE("Player()") 
 {
-    
+    // Check that creating a player with a valid name does not throw an exception
     CHECK_NOTHROW(Player("p1"));
-    
     //check if you can define player with the same name - yes, like in reality.
     CHECK_NOTHROW(Player("p1"));
-
+    // Check that creating a player with an empty string or null pointer throws an exception
     CHECK_THROWS(Player(""));
-    
     CHECK_THROWS(Player(nullptr));
 
 }
 
+// Test case for the stacksize() function
 TEST_CASE("stacksize()") 
 {
+    // Create two players and a new game
     Player p1("p1"); 
     Player p2("p2"); 
     Game game(p1, p2); 
 
+    // Check that both players start with 26 cards
     bool stacksizeCheck1 = (p1.stacksize() == 26) && (p2.stacksize() == 26);
     CHECK(stacksizeCheck1);  
 
+    // Play one turn and check that both players still have the same number of cards
     game.playTurn();
     bool stacksizeCheck2 = (p1.stacksize() == p2.stacksize());
     CHECK(stacksizeCheck2);  
     
+    // Play five more turns and check that both players still have the same number of cards
     for (int i=0;i<5;i++) {
         game.playTurn();
         bool stacksizeCheck3 = (p1.stacksize() == p2.stacksize());
         CHECK(stacksizeCheck3);
     }
     
+    // Check that both players have no more than 20 cards after playing 6 turns
     bool stacksizeCheck4 = (p1.stacksize() <= 20) && (p2.stacksize() <= 20) ;
     CHECK(stacksizeCheck4);
 
+    // Play all turns and check that both players have no cards left
     game.playAll();
     bool stacksizeCheck5 = (p1.stacksize() == 0) && (p2.stacksize() == 0) ;
     CHECK(stacksizeCheck5);
 
-
 }
+
+// Test case for the cardesTaken() function
 TEST_CASE("cardesTaken()") 
 {
+    // Create two players and a new game
     Player p1("p1"); 
     Player p2("p2"); 
     Game game(p1, p2); 
 
+    // Check that both players start with 0 cards taken
     bool cardesTakenCheck1 = (p1.cardesTaken() == 0) && (p2.cardesTaken() == 0);
     CHECK(cardesTakenCheck1); 
 
+    // Play one turn and check that at least one player has taken a card
     game.playTurn();
     bool cardesTakenCheck2 = (p1.cardesTaken() > 0) || (p2.cardesTaken() > 0);
     CHECK(cardesTakenCheck2);
 
+    // Check that if one player has taken two or more cards, the other player hasn't taken any
     bool cardesTakenCheck3 = (p1.cardesTaken() >= 2) && (p2.cardesTaken() == 0) || (p2.cardesTaken() >= 2) && (p1.cardesTaken() == 0);
     CHECK(cardesTakenCheck3);
     
+    // Play five more turns and check that the total number of cards taken is correct
     for (int i=0 ;i<5 ;i++) {
         game.playTurn();
     }
-
     bool cardesTakenCheck4 = (p1.cardesTaken() + p2.cardesTaken()) == (52 - p1.stacksize() - p2.stacksize());
     CHECK(cardesTakenCheck4);
 
+    // Play all turns and check that at least one player has taken more cards than the other
     game.playAll();
     bool cardesTakenCheck5 = (p1.cardesTaken() > p2.cardesTaken()) || (p2.cardesTaken() > p1.cardesTaken()) || (p2.cardesTaken() == p1.cardesTaken());
     CHECK(cardesTakenCheck5);
+     // Check that the total number of cards taken is 52
     bool cardesTakenCheck6 = (p1.cardesTaken() + p2.cardesTaken()) == 52;
     CHECK(cardesTakenCheck6);
 
