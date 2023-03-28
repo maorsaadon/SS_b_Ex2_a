@@ -51,7 +51,7 @@ TEST_CASE("playTurn()")
     CHECK(playTurnCheck1);
 
     // Test that at least one player has taken cards after playing a turn
-    bool playTurnCheck2 = (p1.cardesTaken() > 0) || (p2.cardesTaken() > 0) || ((p1.cardesTaken() == 0) && (p2.cardesTaken() == 0));
+    bool playTurnCheck2 = (p1.cardesTaken() > 0) || (p2.cardesTaken() > 0);
     CHECK(playTurnCheck2);
     
     // Test that an exception is thrown when playing a turn after the game has ended
@@ -216,7 +216,17 @@ TEST_CASE("stacksize()")
     // Play one turn and check that both players still have the same number of cards
     game.playTurn();
     bool stacksizeCheck2 = (p1.stacksize() == p2.stacksize());
-    CHECK(stacksizeCheck2);  
+    CHECK(stacksizeCheck2); 
+    
+    // to be shore it was only one turn of tie or one turn of card throw
+    if(p1.stacksize() > 22 || p2.stacksize() >22)
+    {
+        // After one turn, we draw on card or multiples of 3 incase it was an even, in that cases stack size will be odd number.
+        bool stacksizeCheck2 = (p1.stacksize()%2 == 1) && (p2.stacksize()%2 == 1);
+        CHECK(stacksizeCheck2); 
+    }
+
+     
     
     // Play five more turns and check that both players still have the same number of cards
     for (int i=0;i<5;i++) {
