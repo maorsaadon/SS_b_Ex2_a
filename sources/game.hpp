@@ -13,7 +13,6 @@ namespace ariel{
       Player* player1; 
       Player* player2;
       vector<stringstream> log;
-      bool gameOn;
       static vector<Player> players;
 
       vector<Card> fullPile();

@@ -37,7 +37,6 @@ namespace ariel{
         this->player2 = &player2;
         Game::players.push_back(player1);
         Game::players.push_back(player2);
-        this->gameOn = true;
         deal();
     }
 
@@ -85,49 +84,50 @@ namespace ariel{
 
     void Game::playTurn() 
     {
-        // if (this->player1->cardesTaken() == this->player2->cardesTaken()) 
-        // {
-        //     cout << "the game still going on" << endl;
-        //     deal();
-        //     return;
-        // }
-
-        // Check if game is over
-        if (this->player1->stacksize() == 0 && this->player2->stacksize() == 0 || !gameOn) 
+        if ((this->player1->stacksize() == 0 && this->player2->stacksize() == 0) && (this->player1->cardesTaken() == this->player2->cardesTaken())) 
+        {
+            cout << "the game still going on" << endl;
+            deal();
+            return;
+        }
+        else if (this->player1->stacksize() == 0 && this->player2->stacksize() == 0) 
         {
             throw invalid_argument("game over");
         }
-        
-        int counterWinnerPile =0;
-        string winner = "none";
-        Card card1 = this->player1->play();
-        Card card2 = this->player2->play();
-        counterWinnerPile += 2;
-        while(card1.getValue() == card2.getValue())
-        {
-            this->player1->play();
-            this->player2->play();
-            counterWinnerPile += 2;
-            card1 = player1->play();
-            card2 = player2->play();
-            counterWinnerPile += 2;
-        }
-        if(card1.getValue()> card2.getValue())
-        {
-            this->player1->incCounterTurnWin();
-            winner = this->player1->getName();
-            this->player1->incOwnCardCount(counterWinnerPile);
-        }
         else
         {
-            this->player2->incCounterTurnWin();
-            winner = this->player2->getName();
-            this->player2->incOwnCardCount(counterWinnerPile);
-        }
         
-        stringstream turn;
-        turn << this->player1->getName() << " played " << card1.getValue() << " of " << card1.getSuit() << " " << this->player2->getName() << " played " << card2.getValue() << " of " << card2.getSuit() << ". " << winner << " wins.";
-        this->log.emplace_back(turn.str());
+            int counterWinnerPile =0;
+            string winner = "none";
+            Card card1 = this->player1->play();
+            Card card2 = this->player2->play();
+            counterWinnerPile += 2;
+            while(card1.getValue() == card2.getValue())
+            {
+                this->player1->play();
+                this->player2->play();
+                counterWinnerPile += 2;
+                card1 = player1->play();
+                card2 = player2->play();
+                counterWinnerPile += 2;
+            }
+            if(card1.getValue()> card2.getValue())
+            {
+                this->player1->incCounterTurnWin();
+                winner = this->player1->getName();
+                this->player1->incOwnCardCount(counterWinnerPile);
+            }
+            else
+            {
+                this->player2->incCounterTurnWin();
+                winner = this->player2->getName();
+                this->player2->incOwnCardCount(counterWinnerPile);
+            }
+            
+            stringstream turn;
+            turn << this->player1->getName() << " played " << card1.getValue() << " of " << card1.getSuit() << " " << this->player2->getName() << " played " << card2.getValue() << " of " << card2.getSuit() << ". " << winner << " wins.";
+            this->log.emplace_back(turn.str());
+        }
     }
 
     void Game::printLastTurn()
@@ -137,40 +137,41 @@ namespace ariel{
             throw invalid_argument("The game is not start yet");
         }
         cout << this->log.back().str() << endl;
+    
     }
 
     void Game::playAll() 
     {
-        // if (this->player1->cardesTaken() == this->player2->cardesTaken()) 
-        // {
-        //     cout << "the game still going on" << endl;
-        //     deal();
-        //     return;
-        // }
-
-        if (this->player1->stacksize() == 0 && this->player2->stacksize() == 0 || !(this->gameOn)) 
+        if ((this->player1->stacksize() == 0 && this->player2->stacksize() == 0) && (this->player1->cardesTaken() == this->player2->cardesTaken())) 
+        {
+            cout << "the game still going on" << endl;
+            deal();
+            return;
+        }
+        else if (this->player1->stacksize() == 0 && this->player2->stacksize() == 0) 
         {
             throw invalid_argument("game over");
         }
-
-        while (this->player1->stacksize() > 0 || this->player2->stacksize() > 0) 
+        else
         {
-            playTurn();
-        }
+            while (this->player1->stacksize() > 0 || this->player2->stacksize() > 0) 
+            {
+                playTurn();
+            }
 
-        for(uint i = 0; i < Game::players.size(); i++)
-        {
-            if (this->player1->isEqual(Game::players.at(i)))
+            for(uint i = 0; i < Game::players.size(); i++)
             {
-                Game::players.erase(Game::players.begin() + int(i));
+                if (this->player1->isEqual(Game::players.at(i)))
+                {
+                    Game::players.erase(Game::players.begin() + int(i));
+                }
+                if (this->player2->isEqual(Game::players.at(i)))
+                {
+                    Game::players.erase(Game::players.begin() + int(i));
+                }
+            
             }
-            if (this->player2->isEqual(Game::players.at(i)))
-            {
-                Game::players.erase(Game::players.begin() + int(i));
-            }
-           
         }
-        this->gameOn = false;
 
     }
     void Game::printWiner()
