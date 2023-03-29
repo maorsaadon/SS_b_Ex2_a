@@ -5,10 +5,10 @@
 #include "player.hpp"
 #include "card.hpp"
 
+
+
 namespace ariel{
 	
-	int Player::playersCounter =0;
-
 	Player::Player(string name){
 		 if (name == "")
         {
@@ -17,7 +17,7 @@ namespace ariel{
         this->name = name;
         this->ownCardCount = 0;
         this->counterTurnWin = 0;
-        this->id = Player::playersCounter++;
+		this->onGame = false;
     }
 	
 	string Player::getName()
@@ -32,7 +32,7 @@ namespace ariel{
 
 	bool Player::isEqual(Player other)
 	{
-		if(this->name.compare(other.getName()) == 0 && this->id == other.getId()) return true;
+		if(this->name.compare(other.getName()) == 0 ) return true;
 		return false;
 	}
 
@@ -48,6 +48,17 @@ namespace ariel{
 	void Player::placeBottom(Card card){
 		this->myPile.push_back(card);
 	}
+
+	bool Player::getOnGame()
+	{
+		return this->onGame;
+	}
+
+	void Player::setOnGame(bool sign)
+	{
+		this->onGame = sign;
+	}
+    
 
 	int Player::cardesTaken()
 	{
@@ -71,6 +82,11 @@ namespace ariel{
 	
 	Card Player::play()
 	{
+		if(myPile.empty())
+		{
+			throw invalid_argument("out of stack"); 
+		}
+		
 		Card drawnCard = this->myPile.at(0);
 		this->myPile.erase(this->myPile.begin());
 		return drawnCard;

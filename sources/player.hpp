@@ -14,10 +14,10 @@ namespace ariel{
       int ownCardCount;
       int counterTurnWin;
       int id;
-      static int playersCounter;
+      bool onGame;
+      
 
     public:
-
       // Constructor
       Player(string name);
 
@@ -31,6 +31,8 @@ namespace ariel{
       int stacksize(); 
       int getCounterTurnWin();
       int incCounterTurnWin(); 
+      bool getOnGame();
+      void setOnGame(bool sign);
       Card play();
 
   };
