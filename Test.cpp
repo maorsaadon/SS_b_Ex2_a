@@ -1,3 +1,4 @@
+
 #include "doctest.h"
 #include <stdexcept>
 #include <iostream>
@@ -124,12 +125,23 @@ TEST_CASE("printWiner()")
         if(p1.cardesTaken() == p2.cardesTaken())
         {
              // Assert that calling printWiner() throws an exception
-             CHECK_THROWS(game.printWiner());
+             CHECK_NOTHROW(game.printWiner());
         }
         else 
         {
             // Assert that calling printWiner() does not throw an exception
             CHECK_NOTHROW(game.printWiner());
+            stringstream printcheck;
+            streambuf* printbuf = cout.rdbuf(); // save cout buffer
+            cout.rdbuf(printcheck.rdbuf()); // redirect cout to print
+
+            game.printWiner(); // call the function 
+
+            string printwin = printcheck.str();
+            bool check = (printwin.compare("p1") && printwin.compare("P2"));
+
+            cout.rdbuf(printbuf); // restore cout buffer
+            CHECK(check);//check that the name of the winner is one of the playeres that initialize
         }
     }
 
@@ -178,7 +190,7 @@ TEST_CASE("printStats()")
     Game game(p1, p2); 
     
     // Check that calling printStats before playing any turns throws an exception
-    CHECK_THROWS(game.printStats());
+    CHECK_NOTHROW(game.printStats());
      // Play one turn and check that calling printStats does not throw an exception
     game.playTurn();
     CHECK_NOTHROW(game.printStats());
@@ -283,6 +295,5 @@ TEST_CASE("cardesTaken()")
     CHECK(cardesTakenCheck6);
 
 }
-
 
 

@@ -15,7 +15,7 @@ namespace ariel{
       vector<stringstream> log;
       vector<Card> cashRegister;
       vector<Card> fullPile();
-      void shuffle(vector<Card> pile);
+      void shuffle(vector<Card>& pile);
       void deal(vector<Card> pile);
       
 

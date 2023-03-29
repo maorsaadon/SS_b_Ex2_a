@@ -56,7 +56,7 @@ namespace ariel{
         return pile;
     }
 
-    void Game::shuffle(vector<Card> pile)
+    void Game::shuffle(vector<Card>& pile)
     {
         srand((unsigned long)time(0) + pile.size());
         //Select a new random location for each card
@@ -71,7 +71,7 @@ namespace ariel{
     void Game::deal(vector<Card> pile)
     {
         shuffle(pile);
-
+        
         for(uint i = 0; i < pile.size()-1; i++)
             {
                 this->player1->placeBottom(pile.at(i++));
@@ -81,41 +81,122 @@ namespace ariel{
 
     void Game::playTurn() 
     {
-        if ((this->player1->stacksize() == 0 && this->player2->stacksize() == 0) && (this->player1->cardesTaken() == this->player2->cardesTaken()) && !(this->cashRegister.empty())) 
-        {
-            cout << "the game still going on" << endl;
-            deal(this->cashRegister);
-            return;
-        }
-        if (this->player1->stacksize() == 0 && this->player2->stacksize() == 0 && !(this->player1->cardesTaken() == this->player2->cardesTaken()) && this->cashRegister.empty())
-        {
-            throw invalid_argument("game over");
-        }
-        
+        stringstream turn;
         int counterWinnerPile =0;
         string winner = "none";
+
+        if (this->player1->stacksize() == 0 && this->player2->stacksize() == 0  )
+        {
+            if(this->cashRegister.empty()){
+                if(this->player1->cardesTaken() != this->player2->cardesTaken() && (this->player1->cardesTaken() + this->player2->cardesTaken() == 52))
+                {
+                this->player1->setOnGame(false);
+                this->player2->setOnGame(false);
+                this->cashRegister.clear();
+                throw invalid_argument("game over");
+                }
+                if(this->player1->cardesTaken() == this->player2->cardesTaken() && (this->player1->cardesTaken() + this->player2->cardesTaken() == 52))
+                {
+                    this->player1->setOnGame(false);
+                    this->player2->setOnGame(false);
+                    this->cashRegister.clear();
+                    throw invalid_argument("the game is over its a tie");
+                }
+
+            }
+            else 
+            {
+                if(this->player1->cardesTaken() == this->player2->cardesTaken())
+                {
+                    if(this->cashRegister.size() == 2)
+                    {
+                        Card card1 = this->cashRegister.back();
+                        this->cashRegister.erase(this->cashRegister.end());
+                        Card card2 = this->cashRegister.back();
+                        this->cashRegister.erase(this->cashRegister.end());
+                        if(card1.getValue() == card2.getValue())
+                        {
+                            this->player1->setOnGame(false);
+                            this->player2->setOnGame(false);
+                            this->player1->incOwnCardCount(1);
+                            this->player2->incOwnCardCount(1);
+                            this->cashRegister.clear();
+                            return;
+                        }
+                        if(card1.getValue() > card2.getValue())
+                        {
+                            this->player1->incOwnCardCount(2);
+                            winner = this->player1->getName();
+                            turn << this->player1->getName() << " played " << card1.getValue() << " of " << card1.getSuit() << " " << this->player2->getName() << " played " << card2.getValue() << " of " << card2.getSuit() << ". " << winner << " wins.";
+                            this->log.emplace_back(turn.str());
+                            this->player1->setOnGame(false);
+                            this->player2->setOnGame(false);
+                            this->cashRegister.clear();
+                            return;
+                        }
+                        else
+                        {
+                            this->player2->incOwnCardCount(2);
+                            winner = this->player1->getName();
+                            turn << this->player1->getName() << " played " << card1.getValue() << " of " << card1.getSuit() << " " << this->player2->getName() << " played " << card2.getValue() << " of " << card2.getSuit() << ". " << winner << " wins.";
+                            this->log.emplace_back(turn.str());
+                            this->player1->setOnGame(false);
+                            this->player2->setOnGame(false);
+                            this->cashRegister.clear();
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        deal(this->cashRegister);
+                        this->cashRegister.clear();
+                    }
+                }
+            }
+            
+        }
+        
+        stringstream turn1;
         Card card1 = this->player1->play();
-        this->cashRegister.push_back(card1);
         Card card2 = this->player2->play();
+        this->cashRegister.push_back(card1);
         this->cashRegister.push_back(card2);
         counterWinnerPile += 2;
-        while(card1.getValue() == card2.getValue())
+    
+        
+        while(card1.getValue() == card2.getValue() && (this->player1->stacksize() != 0 && this->player2->stacksize() != 0 ))
         {
+            
             this->cashRegister.push_back(this->player1->play());
             this->cashRegister.push_back(this->player2->play());
             counterWinnerPile += 2;
-            card1 = player1->play();
-            this->cashRegister.push_back(card1);
-            card2 = player2->play();
-            this->cashRegister.push_back(card2);
-            counterWinnerPile += 2;
+            
+            if (this->player1->stacksize() != 0 && this->player2->stacksize() != 0  ){
+                card1 = player1->play();
+                this->cashRegister.push_back(card1);
+                card2 = player2->play();
+                this->cashRegister.push_back(card2);
+                counterWinnerPile += 2;
+                turn1 << this->player1->getName() << " played " << card1.getValue() << " of " << card1.getSuit() << " " << this->player2->getName() << " played " << card2.getValue() << " of " << card2.getSuit() << ". " << winner << " wins.";
+                this->log.emplace_back(turn1.str());
+            }
+            else
+            {
+               
+                deal(this->cashRegister);
+                this->cashRegister.clear();
+            }
         }
+        
+        stringstream turn2;
         if(card1.getValue()> card2.getValue())
         {
             this->player1->incCounterTurnWin();
             winner = this->player1->getName();
             this->player1->incOwnCardCount(counterWinnerPile);
             this->cashRegister.clear();
+            turn2 << this->player1->getName() << " played " << card1.getValue() << " of " << card1.getSuit() << " " << this->player2->getName() << " played " << card2.getValue() << " of " << card2.getSuit() << ". " << winner << " wins.";
+            this->log.emplace_back(turn2.str());
         }
         else
         {
@@ -123,16 +204,16 @@ namespace ariel{
             winner = this->player2->getName();
             this->player2->incOwnCardCount(counterWinnerPile);
             this->cashRegister.clear();
+            turn2 << this->player1->getName() << " played " << card1.getValue() << " of " << card1.getSuit() << " " << this->player2->getName() << " played " << card2.getValue() << " of " << card2.getSuit() << ". " << winner << " wins.";
+            this->log.emplace_back(turn2.str());
         }
         
-        stringstream turn;
-        turn << this->player1->getName() << " played " << card1.getValue() << " of " << card1.getSuit() << " " << this->player2->getName() << " played " << card2.getValue() << " of " << card2.getSuit() << ". " << winner << " wins.";
-        this->log.emplace_back(turn.str());
 
-        if (this->player1->stacksize() == 0 && this->player2->stacksize() == 0 && !(this->player1->cardesTaken() == this->player2->cardesTaken()) && this->cashRegister.empty())
+        if (this->player1->stacksize() == 0 && this->player2->stacksize() == 0 && (this->player1->cardesTaken() + this->player2->cardesTaken() == 52) && this->cashRegister.empty())
         {
             this->player1->setOnGame(false);
             this->player2->setOnGame(false);
+            this->cashRegister.clear();
         }
             
         
@@ -150,16 +231,17 @@ namespace ariel{
 
     void Game::playAll() 
     {
-        if ((this->player1->stacksize() == 0 && this->player2->stacksize() == 0) && !(this->player1->cardesTaken() == this->player2->cardesTaken()) && (this->cashRegister.empty()))
+        if (!(this->player1->getOnGame()) && !(this->player2->getOnGame()))
         {
             throw invalid_argument("game over");
         }
-        while (this->player1->cardesTaken() + this->player2->cardesTaken() != 52) 
+        while(this->player1->getOnGame() && this->player2->getOnGame()) 
         {
             playTurn();
         } 
-        this->player1->setOnGame(false);
-        this->player2->setOnGame(false);
+        
+        
+
         
     }
 
@@ -169,7 +251,7 @@ namespace ariel{
         {
             throw invalid_argument("The game is not start yet");
         }
-        if(this->player1->stacksize() > 0 && this->player2->stacksize() > 0)
+        if(this->player1->getOnGame() && this->player2->getOnGame())
         {
             throw invalid_argument("The game is not over yet");
         }
@@ -179,7 +261,7 @@ namespace ariel{
             if(this->player2->cardesTaken() > this->player1->cardesTaken()) {cout << this->player2->getName() << endl;}
             else
             {
-                throw invalid_argument("there is no winners this time");
+                cout << "there is no winners this time" << endl;
             }
         }
         
@@ -198,10 +280,6 @@ namespace ariel{
 
     void Game::printStats()
     {
-        if (this->log.size() == 0) 
-        {
-            throw invalid_argument("the game is not start yet");
-        }
         stringstream ss1;
         ss1 << this->player1->getName() << " won " << this->player1->getCounterTurnWin() << " turns of " << this->log.size() << " and wons " << this->player1->cardesTaken() << " cards.";
         cout << ss1.str() << endl;
