@@ -82,11 +82,6 @@ namespace ariel{
 	
 	Card Player::play()
 	{
-		if(myPile.empty())
-		{
-			throw invalid_argument("out of stack"); 
-		}
-		
 		Card drawnCard = this->myPile.at(0);
 		this->myPile.erase(this->myPile.begin());
 		return drawnCard;
